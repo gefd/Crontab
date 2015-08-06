@@ -63,8 +63,9 @@ class Job extends BaseJob
 
         // extract log file
         if (strpos($command, '>>')) {
-            list($command, $logFile) = explode('>>', $command);
-            $logFile = trim($logFile);
+            list($command, $logPart) = explode('>>', $command);
+            $logPart = explode(' ', trim($logPart));
+            $logFile = trim($logPart[0]);
         }
 
         // compute last run time, and file size

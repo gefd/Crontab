@@ -117,4 +117,20 @@ class JobTest extends \PHPUnit_Framework_TestCase
             $this->fail('__toString should not raise an InvalidArgumentException');
         }
     }
+
+    public function testParseJobLine()
+    {
+        $jobLine = '1 2 3 4 5 cmd >> test.log 2>&1 # some comments';
+        $job = Job::parse($jobLine);
+
+        $this->assertEquals('1', $job->getMinute());
+        $this->assertEquals('2', $job->getHour());
+        $this->assertEquals('3', $job->getDayOfMonth());
+        $this->assertEquals('4', $job->getMonth());
+        $this->assertEquals('5', $job->getDayOfWeek());
+        $this->assertEquals('cmd', $job->getCommand());
+        $this->assertEquals('test.log', $job->getLogFile());
+        $this->assertEquals('some comments', $job->getComments());
+    }
+
 }
