@@ -32,10 +32,14 @@ class Crontab
 
     /**
      * Constructor
+     *
+     * @param bool|true $parseExistingCrontab
      */
-    public function __construct()
+    public function __construct($parseExistingCrontab = true)
     {
-        $this->getCrontabFileHandler()->parseExistingCrontab($this);
+        if ($parseExistingCrontab) {
+            $this->getCrontabFileHandler()->parseExistingCrontab($this);
+        }
     }
 
     /**
