@@ -69,4 +69,35 @@ class CrontabTest extends \PHPUnit_Framework_TestCase
             $this->crontab->render()
         );
     }
+
+    public function testParseExistingCrontabByDefault()
+    {
+        $mockCrontab = $this->getMockBuilder('Crontab\Crontab')
+            ->setMethods(array('getCrontabFileHandler'))
+            ->disableOriginalConstructor()
+            ->getMock();
+        $mockCrontabFileHandler = $this->getMockBuilder('Crontab\CrontabFileHandler')
+            ->getMock();
+
+        $mockCrontab->expects($this->once())
+            ->method('getCrontabFileHandler')
+            ->will($this->returnValue($mockCrontabFileHandler));
+
+        $parseExistingCrontab = true;
+        $mockCrontab->__construct($parseExistingCrontab);
+    }
+
+    public function testOptionallyDoNotParseExistingCrontab()
+    {
+        $mockCrontab = $this->getMockBuilder('Crontab\Crontab')
+            ->setMethods(array('getCrontabFileHandler'))
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockCrontab->expects($this->never())
+            ->method('getCrontabFileHandler');
+
+        $parseExistingCrontab = false;
+        $mockCrontab->__construct($parseExistingCrontab);
+    }
 }

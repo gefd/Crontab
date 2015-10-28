@@ -34,6 +34,8 @@ And then you can delete a job you don't want anymore:
 
 When you create a Crontab, it will automatically parse your current crontab file and add all present job into your new object.
 
+Explicitely set the constructor argument `$parseExistingCrontab` to false if you do not want to parse the current crontab file. 
+
 Resources
 ---------
 
