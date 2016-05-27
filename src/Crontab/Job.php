@@ -38,8 +38,15 @@ class Job extends BaseJob
         // split the line
         $parts = preg_split('@ @', $jobLine, NULL, PREG_SPLIT_NO_EMPTY);
 
-        // check the number of part
-        if (count($parts) < 5) {
+        // $parts[0] may contain one of the following special strings;
+        // ->  @reboot, @yearly, @annually, @monthly, @weekly, @daily, @midnight, @hourly 
+
+        // check if the line is uses a special string and the number of parts
+        if (in_array($parts[0], Job::$_specials, true)) {
+            $special = array_shift($parts);
+            // Add empty elements for the hour, day, month, week-day indexes
+            array_unshift($parts, $special, ' ', ' ' , ' ', ' ');
+        } else if (count($parts) < 5) {
             throw new \InvalidArgumentException('Wrong job number of arguments.');
         }
 
@@ -269,13 +276,23 @@ class Job extends BaseJob
      */
     public function setMinute($minute)
     {
-        if (!preg_match(self::$_regex['minute'], $minute)) {
-            throw new \InvalidArgumentException(sprintf('Minute "%s" is incorect', $minute));
+        if (!preg_match(self::$_regex['minute'], $minute) && !in_array($minute, self::$_specials, true)) {
+            throw new \InvalidArgumentException(sprintf('Minute "%s" is incorrect', $minute));
         }
 
         $this->minute = $minute;
 
         return $this->generateHash();
+    }
+
+    /**
+     * Check if the crontab entry is using a special word short-cut in the minute position
+     *
+     * @return bool
+     */
+    public function isSpecial()
+    {
+        return (!empty($this->minute) && in_array($this->minute, self::$_specials, true));
     }
 
     /**
@@ -287,8 +304,8 @@ class Job extends BaseJob
      */
     public function setHour($hour)
     {
-        if (!preg_match(self::$_regex['hour'], $hour)) {
-            throw new \InvalidArgumentException(sprintf('Hour "%s" is incorect', $hour));
+        if (!preg_match(self::$_regex['hour'], $hour) && !($hour == ' ' && $this->isSpecial())) {
+            throw new \InvalidArgumentException(sprintf('Hour "%s" is incorrect', $hour));
         }
 
         $this->hour = $hour;
@@ -305,8 +322,8 @@ class Job extends BaseJob
      */
     public function setDayOfMonth($dayOfMonth)
     {
-        if (!preg_match(self::$_regex['dayOfMonth'], $dayOfMonth)) {
-            throw new \InvalidArgumentException(sprintf('DayOfMonth "%s" is incorect', $dayOfMonth));
+        if (!preg_match(self::$_regex['dayOfMonth'], $dayOfMonth) && !($dayOfMonth == ' ' && $this->isSpecial())) {
+            throw new \InvalidArgumentException(sprintf('DayOfMonth "%s" is incorrect', $dayOfMonth));
         }
 
         $this->dayOfMonth = $dayOfMonth;
@@ -323,8 +340,8 @@ class Job extends BaseJob
      */
     public function setMonth($month)
     {
-        if (!preg_match(self::$_regex['month'], $month)) {
-            throw new \InvalidArgumentException(sprintf('Month "%s" is incorect', $month));
+        if (!preg_match(self::$_regex['month'], $month) && !($month == ' ' && $this->isSpecial())) {
+            throw new \InvalidArgumentException(sprintf('Month "%s" is incorrect', $month));
         }
 
         $this->month = $month;
@@ -341,8 +358,8 @@ class Job extends BaseJob
      */
     public function setDayOfWeek($dayOfWeek)
     {
-        if (!preg_match(self::$_regex['dayOfWeek'], $dayOfWeek)) {
-            throw new \InvalidArgumentException(sprintf('DayOfWeek "%s" is incorect', $dayOfWeek));
+        if (!preg_match(self::$_regex['dayOfWeek'], $dayOfWeek) && !($dayOfWeek == ' ' && $this->isSpecial())) {
+            throw new \InvalidArgumentException(sprintf('DayOfWeek "%s" is incorrect', $dayOfWeek));
         }
 
         $this->dayOfWeek = $dayOfWeek;
@@ -360,7 +377,7 @@ class Job extends BaseJob
     public function setCommand($command)
     {
         if (!preg_match(self::$_regex['command'], $command)) {
-            throw new \InvalidArgumentException(sprintf('Command "%s" is incorect', $command));
+            throw new \InvalidArgumentException(sprintf('Command "%s" is incorrect', $command));
         }
 
         $this->command = $command;
