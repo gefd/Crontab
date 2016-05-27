@@ -30,10 +30,16 @@ class CrontabFileHandlerTest extends \PHPUnit_Framework_TestCase
      */
     private $fixtureFile;
 
+    /**
+     * @var string with the path to the fixture file
+     */
+    private $fixtureSpecialsFile;
+
     public function setUp()
     {
         $fixturesDir = __DIR__.'/../../fixtures';
         $this->fixtureFile = $fixturesDir."/crontab";
+        $this->fixtureSpecialsFile = $fixturesDir."/crontab.specials";
         $this->tempFile = tempnam(sys_get_temp_dir(), 'cron');
         $this->crontabFileHandler = new CrontabFileHandler();
         $this->crontab = new Crontab();
@@ -118,5 +124,18 @@ class CrontabFileHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->crontabFileHandler->writeToFile($this->crontab, $this->tempFile);
         // Expected an InvalidArgumentException because the file is not writable.
+    }
+    
+    public function testParseFromFileWithSpecialWords()
+    {
+        $this->crontabFileHandler->parseFromFile($this->crontab, $this->fixtureSpecialsFile);
+
+        $this->assertCount(8, $this->crontab->getJobs());
+        $specialsContents = file_get_contents($this->fixtureSpecialsFile);
+        $output = implode("\n", array_map(function($str) {
+            return preg_replace('/\s+/', ' ', $str);
+        }, explode(PHP_EOL, $this->crontab->render())));
+
+        $this->assertEquals($specialsContents, $output);
     }
 }
