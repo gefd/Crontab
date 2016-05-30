@@ -45,8 +45,8 @@ class CrontabFileHandler
         $process = new Process($this->crontabCommand($crontab).' -l');
         $process->run();
 
-        foreach ($this->parseString($process->getOutput()) as $job) {
-            $crontab->addJob($job);
+        foreach ($this->parseString($process->getOutput()) as $item) {
+            $crontab->addItem($item);
         }
 
         $this->error = $process->getErrorOutput();
@@ -70,8 +70,8 @@ class CrontabFileHandler
         }
 
         $file = file_get_contents($filename);
-        foreach ($this->parseString($file) as $job) {
-            $crontab->addJob($job);
+        foreach ($this->parseString($file) as $element) {
+            $crontab->addItem($element);
         }
 
         return $this;
@@ -82,11 +82,11 @@ class CrontabFileHandler
      *
      * @param string $input
      *
-     * @return Job[]
+     * @return array of Variable and Job instances
      */
     protected function parseString($input)
     {
-        $jobs = array();
+        $elements = array();
 
         $lines = array_filter(explode(PHP_EOL, $input), function($line) {
             return '' != trim($line);
@@ -96,11 +96,15 @@ class CrontabFileHandler
             $trimmed = trim($line);
             // if line is not a comment, convert it to a cron
             if (0 !== \strpos($trimmed, '#')) {
-                $jobs[] = Job::parse($line);
+                if (preg_match('/^[^\s]+\s?=/', $line)) {
+                    $elements[] = Variable::parse($line);
+                } else {
+                    $elements[] = Job::parse($line);
+                }
             }
         }
 
-        return $jobs;
+        return $elements;
     }
 
     /**

@@ -24,6 +24,13 @@ class Crontab
     private $jobs = array();
 
     /**
+     * A collection of variables
+     *
+     * @var Variable[] $variables
+     */
+    private $variables = array();
+
+    /**
      * The user executing the comment 'crontab'
      *
      * @var string
@@ -63,7 +70,10 @@ class Crontab
      */
     public function render()
     {
-        return implode(PHP_EOL, $this->getJobs());
+        return implode(PHP_EOL, array_merge(
+            $this->getVariables(),
+            $this->getJobs()
+        ));
     }
 
     /**
@@ -152,6 +162,16 @@ class Crontab
     }
 
     /**
+     * Get all variables in crontab
+     *
+     * @return Variable[] an array of Variable
+     */
+    public function getVariables()
+    {
+        return $this->variables;
+    }
+
+    /**
      * Get crontab error
      *
      * @return string
@@ -227,6 +247,66 @@ class Crontab
     public function removeJob(Job $job)
     {
         unset($this->jobs[$job->getHash()]);
+
+        return $this;
+    }
+
+    /**
+     * @param Variable $variable
+     * @return Crontab
+     */
+    public function addVariable(Variable $variable)
+    {
+        $this->variables[$variable->getHash()] = $variable;
+
+        return $this;
+    }
+
+    /**
+     * @param Variable[] $variables
+     * @return Crontab
+     */
+    public function setVariables(array $variables)
+    {
+        foreach ($variables as $variable) {
+            $this->addVariable($variable);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Variable $variable
+     * @return Crontab
+     */
+    public function removeVariable(Variable $variable)
+    {
+        unset($this->variables[$variable->getHash()]);
+
+        return $this;
+    }
+
+    /**
+     * @return Crontab
+     */
+    public function removeAllVariables()
+    {
+        $this->variables = array();
+
+        return $this;
+    }
+
+    /**
+     * @param Job|Variable $item
+     * @return Crontab
+     */
+    public function addItem($item)
+    {
+        if ($item instanceof Job) {
+            $this->addJob($item);
+        } else if ($item instanceof Variable) {
+            $this->addVariable($item);
+        }
 
         return $this;
     }

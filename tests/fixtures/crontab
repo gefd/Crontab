@@ -1,3 +1,7 @@
+MAILTO=root@localhost.localdomain
+BIN_PATH=/some/path/to/bin
+
 0 * * * * cmd
 0 * * * * cmd2
   0     *   *    *  *   indentedCommand with whitespaces
+0 * * * * $BIN_PATH/cmd3

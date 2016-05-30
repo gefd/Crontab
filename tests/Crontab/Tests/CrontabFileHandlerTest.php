@@ -52,16 +52,34 @@ class CrontabFileHandlerTest extends \PHPUnit_Framework_TestCase
     public function testParseFromFile()
     {
         $this->crontabFileHandler->parseFromFile($this->crontab, $this->fixtureFile);
-        $this->assertCount(3, $this->crontab->getJobs());
+        $this->assertCount(4, $this->crontab->getJobs());
 
         $jobs = $this->crontab->getJobs();
         $job1 = array_shift($jobs);
         $job2 = array_shift($jobs);
         $job3 = array_shift($jobs);
+        $job4 = array_shift($jobs);
 
         $this->assertEquals('cmd', $job1->getCommand());
         $this->assertEquals('cmd2', $job2->getCommand());
         $this->assertEquals('indentedCommand with whitespaces', $job3->getCommand());
+        // Job 4 contains a variable
+        $this->assertEquals('$BIN_PATH/cmd3', $job4->getCommand());
+    }
+
+    public function testParseVariablesFromFile()
+    {
+        $this->crontabFileHandler->parseFromFile($this->crontab, $this->fixtureFile);
+        $this->assertCount(2, $this->crontab->getVariables());
+
+        $variables = $this->crontab->getVariables();
+        $var1 = array_shift($variables);
+        $var2 = array_shift($variables);
+
+        $this->assertEquals('MAILTO', $var1->getName());
+        $this->assertEquals('root@localhost.localdomain', $var1->getValue());
+        $this->assertEquals("MAILTO=root@localhost.localdomain", $var1->render());
+        $this->assertEquals('BIN_PATH', $var2->getName());
     }
 
     public function testWriteToFileIsSuccessfulWhenFileIsWritable()
@@ -71,6 +89,21 @@ class CrontabFileHandlerTest extends \PHPUnit_Framework_TestCase
         $this->crontabFileHandler->writeToFile($this->crontab, $this->tempFile);
 
         $this->assertSame($this->crontab->render().PHP_EOL, file_get_contents($this->tempFile));
+    }
+
+    public function testWriteToFileContainsVariables()
+    {
+        $this->crontabFileHandler->parseFromFile($this->crontab, $this->fixtureFile);
+        $this->crontabFileHandler->writeToFile($this->crontab, $this->tempFile);
+
+        // Strip extra whitespace and blank lines from the fixture file
+        $fixtureLines = array_map('trim', file($this->fixtureFile));
+        $fixtureContents = array_map(function($line) {
+            return '' !== trim($line) ? preg_replace('/\s+/', ' ', trim($line)) : null;
+        }, $fixtureLines);
+        $fileContents = file_get_contents($this->tempFile);
+
+        $this->assertSame(implode("\n", array_filter($fixtureContents)) . PHP_EOL, $fileContents);
     }
 
     /**
