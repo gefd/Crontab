@@ -38,6 +38,9 @@ class JobSpecial extends Job
      */
     public function setSpecial($special)
     {
+        if (!in_array($special, self::$_specials, true)) {
+            throw new \InvalidArgumentException("Cronjob special value is not valid");
+        }
         $this->special = $special;
 
         return $this;
