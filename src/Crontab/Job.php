@@ -2,8 +2,6 @@
 
 namespace Crontab;
 
-use Crontab\BaseJob;
-
 /**
  * Represent a cron job
  *
@@ -41,8 +39,10 @@ class Job extends BaseJob
         // $parts[0] may contain one of the following special strings;
         // ->  @reboot, @yearly, @annually, @monthly, @weekly, @daily, @midnight, @hourly 
 
+        $isSpecial = false;
         // check if the line is uses a special string and the number of parts
-        if (in_array($parts[0], Job::$_specials, true)) {
+        if (in_array($parts[0], JobSpecial::$_specials, true) && count($parts) > 1) {
+            $isSpecial = true;
             $special = array_shift($parts);
             // Add empty elements for the hour, day, month, week-day indexes
             array_unshift($parts, $special, ' ', ' ' , ' ', ' ');
@@ -51,7 +51,7 @@ class Job extends BaseJob
         }
 
         // analyse command
-        $command = implode(' ', array_slice($parts, 5));
+        $command = implode(' ', array_slice($parts, ($isSpecial ? 1 : 5)));
 
         // prepare variables
         $lastRunTime = $logFile = $logSize = $errorFile = $errorSize = $comments = null;
@@ -96,13 +96,21 @@ class Job extends BaseJob
         }
 
         // set the Job object
-        $job = new Job();
+        if ($isSpecial) {
+            $job = new JobSpecial();
+            $job->setSpecial($parts[0]);
+        } else {
+            $job = new Job();
+            $job
+                ->setMinute($parts[0])
+                ->setHour($parts[1])
+                ->setDayOfMonth($parts[2])
+                ->setMonth($parts[3])
+                ->setDayOfWeek($parts[4])
+            ;
+        }
+
         $job
-            ->setMinute($parts[0])
-            ->setHour($parts[1])
-            ->setDayOfMonth($parts[2])
-            ->setMonth($parts[3])
-            ->setDayOfWeek($parts[4])
             ->setCommand($command)
             ->setErrorFile($errorFile)
             ->setErrorSize($errorSize)
@@ -246,7 +254,7 @@ class Job extends BaseJob
     /**
      * Return the last job run time
      *
-     * @return DateTime|null
+     * @return \DateTime|null
      */
     public function getLastRunTime()
     {

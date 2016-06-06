@@ -20,20 +20,6 @@ class BaseJob
     );
 
     /**
-     * @var array Of special words that can be used in the minutes position in place of the time/date attributes
-     */
-    public static $_specials = array(
-        '@reboot',
-        '@yearly',
-        '@annually',
-        '@monthly',
-        '@weekly',
-        '@daily',
-        '@midnight',
-        '@hourly'
-    );
-
-    /**
      * @var string
      */
     protected $minute = "0";
