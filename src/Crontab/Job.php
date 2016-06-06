@@ -43,9 +43,6 @@ class Job extends BaseJob
         // check if the line is uses a special string and the number of parts
         if (in_array($parts[0], JobSpecial::$_specials, true) && count($parts) > 1) {
             $isSpecial = true;
-            $special = array_shift($parts);
-            // Add empty elements for the hour, day, month, week-day indexes
-            array_unshift($parts, $special, ' ', ' ' , ' ', ' ');
         } else if (count($parts) < 5) {
             throw new \InvalidArgumentException('Wrong job number of arguments.');
         }
@@ -291,16 +288,6 @@ class Job extends BaseJob
         $this->minute = $minute;
 
         return $this->generateHash();
-    }
-
-    /**
-     * Check if the crontab entry is using a special word short-cut in the minute position
-     *
-     * @return bool
-     */
-    public function isSpecial()
-    {
-        return (!empty($this->minute));
     }
 
     /**
