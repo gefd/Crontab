@@ -284,7 +284,7 @@ class Job extends BaseJob
      */
     public function setMinute($minute)
     {
-        if (!preg_match(self::$_regex['minute'], $minute) && !in_array($minute, self::$_specials, true)) {
+        if (!preg_match(self::$_regex['minute'], $minute)) {
             throw new \InvalidArgumentException(sprintf('Minute "%s" is incorrect', $minute));
         }
 
@@ -300,7 +300,7 @@ class Job extends BaseJob
      */
     public function isSpecial()
     {
-        return (!empty($this->minute) && in_array($this->minute, self::$_specials, true));
+        return (!empty($this->minute));
     }
 
     /**
@@ -312,7 +312,7 @@ class Job extends BaseJob
      */
     public function setHour($hour)
     {
-        if (!preg_match(self::$_regex['hour'], $hour) && !($hour == ' ' && $this->isSpecial())) {
+        if (!preg_match(self::$_regex['hour'], $hour)) {
             throw new \InvalidArgumentException(sprintf('Hour "%s" is incorrect', $hour));
         }
 
@@ -330,7 +330,7 @@ class Job extends BaseJob
      */
     public function setDayOfMonth($dayOfMonth)
     {
-        if (!preg_match(self::$_regex['dayOfMonth'], $dayOfMonth) && !($dayOfMonth == ' ' && $this->isSpecial())) {
+        if (!preg_match(self::$_regex['dayOfMonth'], $dayOfMonth)) {
             throw new \InvalidArgumentException(sprintf('DayOfMonth "%s" is incorrect', $dayOfMonth));
         }
 
@@ -348,7 +348,7 @@ class Job extends BaseJob
      */
     public function setMonth($month)
     {
-        if (!preg_match(self::$_regex['month'], $month) && !($month == ' ' && $this->isSpecial())) {
+        if (!preg_match(self::$_regex['month'], $month)) {
             throw new \InvalidArgumentException(sprintf('Month "%s" is incorrect', $month));
         }
 
@@ -366,7 +366,7 @@ class Job extends BaseJob
      */
     public function setDayOfWeek($dayOfWeek)
     {
-        if (!preg_match(self::$_regex['dayOfWeek'], $dayOfWeek) && !($dayOfWeek == ' ' && $this->isSpecial())) {
+        if (!preg_match(self::$_regex['dayOfWeek'], $dayOfWeek)) {
             throw new \InvalidArgumentException(sprintf('DayOfWeek "%s" is incorrect', $dayOfWeek));
         }
 
