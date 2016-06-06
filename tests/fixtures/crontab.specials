@@ -1,8 +1,0 @@
-@reboot cmd1
-@yearly cmd2
-@annually cmd3
-@monthly cmd4
-@weekly cmd5
-@daily cmd6
-@midnight cmd7
-@hourly cmd8

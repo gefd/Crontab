@@ -5,3 +5,12 @@ BIN_PATH=/some/path/to/bin
 0 * * * * cmd2
   0     *   *    *  *   indentedCommand with whitespaces
 0 * * * * $BIN_PATH/cmd3
+
+@reboot special_cmd4
+@yearly special_cmd5
+@annually special_cmd6 with whitespace
+@monthly special_cmd7
+@weekly special_cmd8
+@daily special_cmd9
+@midnight special_cmd10
+@hourly special_cmd11
